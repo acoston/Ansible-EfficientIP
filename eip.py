@@ -175,9 +175,10 @@ def main():
 
         if ipm_action == 'ip_address_add':
             result = eip.ip_address_add(ipm_space,ipm_ip_name,ipm_hostaddr)
-            #if result[1] == True:
-            if result:
+            if result[1] == True:
                 module.exit_json(changed=result[2], result=result[0])
+            elif result[1] == False: 
+                module.exit_json(changed=result[2], result=result[0], failed=True)
             else:
                 raise Exception()
     
@@ -185,10 +186,10 @@ def main():
             result = eip.ip_address_delete(ipm_space,ipm_hostaddr)
             if result[1] == True:
                 module.exit_json(changed=result[2], result=result[0])
-            #if result[1]:
-             #   module.exit_json(changed=result[2], result=result[0], failed=True)
-            #else:
-             #   raise Exception()
+            elif result[1] == False: 
+                module.exit_json(changed=result[2], result=result[0], failed=True)
+            else:
+                raise Exception()
 
     except Exception as kaboom:
                 module.fail_json(msg=str(kaboom))
