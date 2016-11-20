@@ -1,5 +1,5 @@
-# EfficientIP ansible module
-An efficientIP solidserver module for ansible
+# EfficientIP Ansible module
+An EfficientIP Solidserver module for Ansible
 
 ## Disclaimer
 
