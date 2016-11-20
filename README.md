@@ -4,18 +4,12 @@ An efficientIP solidserver module for ansible
 ## Disclaimer
 
 This module is still in heavy developpment.
-DO NOT USE IT in production environnement 
+DO NOT USE IT (yet) in production environnement 
 
 ## Install
 
 - put it in your Ansible module directory aka "library"
-- you also need the "requests" py module
-
-as root (via doas or sudo)
-
-```
-pip install requests
-```
+- you also need to install the "requests" py module
 
 ## Usage
 ### Task listing...
@@ -24,7 +18,7 @@ pip install requests
 - ip_address_add [hostname, IPv4, Space ]
 - ip_address_delete [IPv4, Space]
 
-### Or via Playbooke 
+### via a Playbooke 
 ```
   tasks:
   - name: list space
