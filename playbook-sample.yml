@@ -1,0 +1,36 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: False
+
+  tasks:
+  - name: list space
+    eip:
+     ipm_server=10.0.0.4
+     ipm_username=ipmadmin
+     ipm_password=admin
+     ipm_action=ip_space_list
+  - name: add IP on space
+    eip:
+     ipm_server=10.0.0.4
+     ipm_username=ipmadmin
+     ipm_password=admin
+     ipm_action=ip_address_add
+     ipm_space=NY_space
+     ipm_ip_name=ansible999
+     ipm_hostaddr='192.168.1.103'
+  - name: properties of a space
+    eip:
+     ipm_server=10.0.0.4
+     ipm_username=ipmadmin
+     ipm_password=admin
+     ipm_action=ip_space_info
+     ipm_space_id=5
+  - name: delete IP address
+    eip:
+     ipm_server=10.0.0.4
+     ipm_username=ipmadmin
+     ipm_password=admin
+     ipm_action=ip_address_delete
+     ipm_space=NY_space
+     ipm_hostaddr='192.168.1.103'
