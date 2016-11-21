@@ -18,7 +18,7 @@ DO NOT USE IT (yet) in production environnement
 - ip_address_add [hostname, IPv4, Space ]
 - ip_address_delete [IPv4, Space]
 
-### via a Playbooke 
+### via Playbooks 
 ```
   tasks:
   - name: list space
