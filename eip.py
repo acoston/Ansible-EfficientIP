@@ -10,6 +10,15 @@
 
 # ==============================================================
 
+DOCUMENTATION = '''
+---
+module: EfficientIP 
+version_added: "0.3"
+short_description: Ansible interface to the REST EfficientIP solidserver API
+description:
+         - to come
+'''
+
 import base64
 import requests
 
@@ -39,13 +48,17 @@ class Eip(object):
             req_status_code = session.status_code
             req_output = session.json()
         except:
-            req_status_code = session.status_code
-            if req_status_code != 204:
+            try:
+                if session:
+                    req_status_code = session.status_code
+                    if req_status_code != 204:
+                        req_error = {"solidserver" : "unreachable"}
+                        self.module.exit_json(changed=False, unreachable=True, Failed=True, result=req_error)
+                    else:
+                        req_output = {"entry deleted" : "true" }
+            except:
                 req_error = {"solidserver" : "unreachable"}
                 self.module.exit_json(changed=False, unreachable=True, Failed=True, result=req_error)
-            else:
-                req_output = {"entry deleted" : "true" }
-
 # ==============================================================
 # IPAM API json output control
 
@@ -56,6 +69,7 @@ class Eip(object):
 # changed = True/False
 # unreachable = True/False
 # failed = True/False
+# "ansible_facts" : { "leptons" : 5000, "colors" : { "red"   : "FF0000", "white" : "FFFFFF" } } 
 
         if req_status_code == 204:
             ipm_check=True
@@ -141,6 +155,7 @@ def main():
                                                             'ip_space_info',
                                                             'ip_address_add',
                                                             'ip_address_delete',
+                                                            'ipm_facts',
                                                             'ip_address_find_free'])
         ), supports_check_mode=False
     )   
@@ -158,7 +173,6 @@ def main():
 
     try:
         eip = Eip(module, ipm_server, ipm_username, ipm_password)
-
         if ipm_action == 'ip_space_list':
             result = eip.ip_space_list()
             if result[1] == True:
