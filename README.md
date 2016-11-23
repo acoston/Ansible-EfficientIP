@@ -8,7 +8,7 @@ DO NOT USE IT (yet) in production environnement
 
 ## Install
 
-- put it in your Ansible module directory aka "library"
+- put it in your Ansible module directory 
 - you also need to install the "requests" py module
 
 ## Usage
