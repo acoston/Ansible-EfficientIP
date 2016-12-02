@@ -4,23 +4,26 @@
 
 #   WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP
 
-#   FOR TESTING ONLY DO NOT USE IN PRODUCTION ENVIRONNEMENT
+#                     FOR TESTING ONLY 
 
-#    ansible-playbook test.yml -M path_to_eip_module/ -vvv
+#          DO NOT USE IN PRODUCTION ENVIRONNEMENT
+
+#   WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP
 
 # ==============================================================
 
 DOCUMENTATION = '''
 ---
 module: EfficientIP 
-version_added: "0.3"
-short_description: Ansible interface to the REST EfficientIP solidserver API
+version_added: "0.4"
+short_description: Ansible interface to the REST/RPC EfficientIP SOLIDServer API
 description:
          - to come
 '''
 
 import base64
 import requests
+
 
 # ==============================================================
 # EfficientIP solidserver init...
@@ -32,7 +35,7 @@ class Eip(object):
             'X-IPM-Username': base64.b64encode(ipm_username),
             'X-IPM-Password': base64.b64encode(ipm_password)
         }
-        self.rest_url = "https://{host}/rest/".format(host=ipm_server)
+        self.base_url = "https://{host}/".format(host=ipm_server)
 
 
 # ==============================================================
@@ -44,21 +47,24 @@ class Eip(object):
         requests.packages.urllib3.disable_warnings()
 
         try:
-            session = requests.request(method, self.rest_url + ipm_cmd, params=querystring, headers=self.ipm_auth_hdr, verify=False, timeout=1)
-            req_status_code = session.status_code
-            req_output = session.json()
+            session = requests.request(method, self.base_url + ipm_cmd, params=querystring, headers=self.ipm_auth_hdr, verify=False, timeout=10)
         except:
             try:
+                # ugly hack to catch the 204 with playload from some rest/ip_delete!
                 if session:
                     req_status_code = session.status_code
-                    if req_status_code != 204:
-                        req_error = {"solidserver" : "unreachable"}
-                        self.module.exit_json(changed=False, unreachable=True, Failed=True, result=req_error)
-                    else:
-                        req_output = {"entry deleted" : "true" }
+                    if req_status_code != 204 and ipm_cmd == 'rest/ip_delete':
+                        req_output = {"error" : "SOLIDServer unreachable"}
+                        self.module.exit_json( unreachable=True, result=req_output)
+                    elif ipm_cmd == 'rest/ip_delete':
+                        req_output = {"output" : "entry deleted" }
+                        self.module.exit_json(changed=True, result=req_output)
             except:
-                req_error = {"solidserver" : "unreachable"}
-                self.module.exit_json(changed=False, unreachable=True, Failed=True, result=req_error)
+                req_output = {"error" : "SOLIDServer unreachable"}
+                self.module.exit_json(changed=False, unreachable=True, result=req_output)
+
+        req_status_code = session.status_code
+
 # ==============================================================
 # IPAM API json output control
 
@@ -69,13 +75,34 @@ class Eip(object):
 # changed = True/False
 # unreachable = True/False
 # failed = True/False
-# "ansible_facts" : { "leptons" : 5000, "colors" : { "red"   : "FF0000", "white" : "FFFFFF" } } 
 
+
+        # ip_delete with hostaddr not ip_id
+        if ipm_cmd == 'rest/ip_delete':
+            if req_status_code == 204:
+                        req_output = {"output" : "entry deleted" }
+                        self.module.exit_json(changed=True, result=req_output)
+            
+            if req_status_code == 400:
+                        req_output = {"output" : "cannot find entry" }
+                        self.module.exit_json( failed=True, result=req_output)
+
+        # Basic status code handling without data
         if req_status_code == 204:
-            ipm_check=True
-            ipm_changed=True
+            req_output = {"output" : "no data" }
+            self.module.exit_json(result=req_output)
 
-        elif req_status_code == 200:
+        if req_status_code == 401:
+            req_output = {"error" : "check SOLIDServer credential" }
+            self.module.exit_json( failed=True, result=req_output )
+
+        if req_status_code == 500:
+            req_output = {"error" : "something went wrong" }
+            self.module.exit_json( failed=True, result=req_output )
+
+        # Status code and ipm errno
+        req_output = session.json()
+        if req_status_code == 200:
             ipm_errno = req_output[0]['errno']
             if ipm_errno == '0': #voodoo here
                 ipm_check=True
@@ -103,30 +130,34 @@ class Eip(object):
 # ==============================================================
 # ansible ipm_action/IPAM API translation and control
 
-# not yet very usefull need -vvv with ansible-playbook to show the info
     def ip_space_list(self):
        method = 'get'
-       ipm_cmd = 'ip_site_list'
+       ipm_cmd = 'rest/ip_site_list'
        querystring = ''
        return self.req(method,ipm_cmd,querystring)
 
-# not yet very usefull need -vvv with ansible-playbook to show the info
-    def ip_space_info(self, ipm_space_id):
+    def ip_subnet_list(self, ipm_space):
        method = 'get'
-       ipm_cmd = 'ip_site_info'
-       querystring = {'site_id': ipm_space_id}
+       ipm_cmd = 'rest/ip_block_subnet_list'
+       querystring = {'WHERE' : 'site_name = \''+ ipm_space +'\' AND is_terminal = \'1\''}
        return self.req(method,ipm_cmd,querystring)
 
-    def ip_address_add(self,ipm_space,ipm_ip_name,ipm_hostaddr):
+    def ip_address_add(self,ipm_space,ipm_hostname,ipm_hostaddr):
        method = 'post'
-       ipm_cmd = 'ip_add'
-       querystring = {'site_name': ipm_space,'ip_name': ipm_ip_name,'hostaddr': ipm_hostaddr}
+       ipm_cmd = 'rest/ip_add'
+       querystring = {'site_name': ipm_space,'ip_name': ipm_hostname,'hostaddr': ipm_hostaddr}
        return self.req(method,ipm_cmd,querystring)
 
     def ip_address_delete(self,ipm_space,ipm_hostaddr):
        method = 'delete'
-       ipm_cmd = 'ip_delete'
+       ipm_cmd = 'rest/ip_delete'
        querystring = {'site_name': ipm_space,'hostaddr': ipm_hostaddr}
+       return self.req(method,ipm_cmd,querystring)
+
+    def ip_address_find_free(self,ipm_subnet_id):
+       method = 'get'
+       ipm_cmd = 'rpc/ip_find_free_address'
+       querystring =  {'subnet_id' : ipm_subnet_id, 'max_find' : '1'} 
        return self.req(method,ipm_cmd,querystring)
 
 
@@ -136,7 +167,6 @@ class Eip(object):
 
 # check mode untested
 # ssl secure mode not tested and switch not implemented
-# ip_address_find_free and lot of others not implemented
 
 
 def main():
@@ -147,15 +177,15 @@ def main():
             ipm_username     = dict(required=True),
             ipm_password     = dict(required=True),
             ipm_space        = dict(required=False),
-            ipm_subnet       = dict(required=False),
-            ipm_ip_name      = dict(required=False),
-            ipm_hostaddr     = dict(required=False),
             ipm_space_id     = dict(required=False),
+            ipm_subnet       = dict(required=False),
+            ipm_subnet_id    = dict(required=False),
+            ipm_hostname     = dict(required=False),
+            ipm_hostaddr     = dict(required=False),
             ipm_action       = dict(required=True, choices=['ip_space_list',
-                                                            'ip_space_info',
+                                                            'ip_subnet_list',
                                                             'ip_address_add',
                                                             'ip_address_delete',
-                                                            'ipm_facts',
                                                             'ip_address_find_free'])
         ), supports_check_mode=False
     )   
@@ -165,10 +195,11 @@ def main():
     ipm_username    = module.params["ipm_username"]
     ipm_password    = module.params["ipm_password"]
     ipm_space       = module.params["ipm_space"]
-    ipm_subnet      = module.params["ipm_subnet"]
-    ipm_ip_name     = module.params["ipm_ip_name"]
-    ipm_hostaddr    = module.params["ipm_hostaddr"]
     ipm_space_id    = module.params["ipm_space_id"]
+    ipm_subnet      = module.params["ipm_subnet"]
+    ipm_subnet_id   = module.params["ipm_subnet_id"]
+    ipm_hostname    = module.params["ipm_hostname"]
+    ipm_hostaddr    = module.params["ipm_hostaddr"]
     ipm_action      = module.params["ipm_action"]
 
     try:
@@ -176,34 +207,57 @@ def main():
         if ipm_action == 'ip_space_list':
             result = eip.ip_space_list()
             if result[1] == True:
-                module.exit_json(changed=result[2], result=result[0])
+                data = []
+                for rows in result[0]:
+                    data.append({ 'ipm_space_id': rows['site_id'], 'ipm_space' :  rows['site_name'] })
+                req_output = { 'output' : data } 
+                module.exit_json(changed=result[2], result=req_output)
             else:
                 raise Exception()
 
-        if ipm_action == 'ip_space_info':
-            result = eip.ip_space_info(ipm_space_id)
+        if ipm_action == 'ip_subnet_list':
+            result = eip.ip_subnet_list(ipm_space)
             if result[1] == True:
-                module.exit_json(changed=result[2], result=result[0])
+                data = []
+                for rows in result[0]:
+                     raw_network = int(rows['start_ip_addr'],16)
+                     network = '.'.join( [ str((raw_network >> 8*i) % 256)  for i in [3,2,1,0] ])
+                     data.append({ 'ipm_subnet_size' : rows['subnet_size'], 'ipm_subnet_addr' : network, 'ipm_subnet' :  rows['subnet_name'] })
+                req_output = { 'output' : data } 
+                module.exit_json(changed=result[2], result=req_output)
             else:
                 raise Exception()
 
         if ipm_action == 'ip_address_add':
-            result = eip.ip_address_add(ipm_space,ipm_ip_name,ipm_hostaddr)
+            result = eip.ip_address_add(ipm_space,ipm_hostname,ipm_hostaddr)
             if result[1] == True:
-                module.exit_json(changed=result[2], result=result[0])
+                req_output = {"output" : "entry added" }
+                module.exit_json(changed=result[2], result=req_output)
             elif result[1] == False: 
-                module.exit_json(changed=result[2], result=result[0], failed=True)
+                req_output = {"output" : result[0] }
+                module.exit_json(changed=result[2], result=req_output, failed=True)
             else:
                 raise Exception()
     
         if ipm_action == 'ip_address_delete':
             result = eip.ip_address_delete(ipm_space,ipm_hostaddr)
             if result[1] == True:
-                module.exit_json(changed=result[2], result=result[0])
+                req_output = {"output" : "entry deleted" }
+                module.exit_json(changed=result[2], result=req_output)
             elif result[1] == False: 
-                module.exit_json(changed=result[2], result=result[0], failed=True)
+                req_output = {"output" : result[0] }
+                module.exit_json(changed=result[2], result=req_output, failed=True)
             else:
                 raise Exception()
+
+        if ipm_action == 'ip_address_find_free':
+            result = eip.ip_address_find_free(ipm_subnet_id)
+            if result[1] == True:
+                req_output = { 'output' : result[0][0]["hostaddr"]}
+                module.exit_json(changed=result[2], result=req_output)
+            else:
+                raise Exception()
+
 
     except Exception as kaboom:
                 module.fail_json(msg=str(kaboom))
