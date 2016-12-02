@@ -10,27 +10,41 @@
      ipm_username=ipmadmin
      ipm_password=admin
      ipm_action=ip_space_list
+
+  - name: list subnet of a space
+    eip:
+     ipm_server=10.0.0.4
+     ipm_username=ipmadmin
+     ipm_password=admin
+     ipm_action=ip_subnet_list
+     ipm_space='NY_space'
+    register: eip
+  
+  - name: find one free IP address on a subnet
+    eip:
+     ipm_server=10.0.0.4
+     ipm_username=ipmadmin
+     ipm_password=admin
+     ipm_action=ip_address_find_free
+     ipm_subnet_id=4
+    register: eip
+
   - name: add IP on space
     eip:
      ipm_server=10.0.0.4
      ipm_username=ipmadmin
      ipm_password=admin
      ipm_action=ip_address_add
-     ipm_space=NY_space
-     ipm_ip_name=ansible999
-     ipm_hostaddr='192.168.1.103'
-  - name: properties of a space
-    eip:
-     ipm_server=10.0.0.4
-     ipm_username=ipmadmin
-     ipm_password=admin
-     ipm_action=ip_space_info
-     ipm_space_id=5
+     ipm_space='NY_space'
+     ipm_hostname=put-your-hostname-here
+     ipm_hostaddr='{{ eip.result.output }}'
+
   - name: delete IP address
     eip:
      ipm_server=10.0.0.4
      ipm_username=ipmadmin
      ipm_password=admin
      ipm_action=ip_address_delete
-     ipm_space=NY_space
-     ipm_hostaddr='192.168.1.103'
+     ipm_space='NY_space'
+     ipm_hostaddr=192.168.1.152
+
