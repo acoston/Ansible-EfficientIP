@@ -14,9 +14,10 @@ DO NOT USE IT (yet) in production environnement
 ## Usage
 ### Task listing...
 - ip_space_list
-- ip_space_info
-- ip_address_add [hostname, IPv4, Space ]
-- ip_address_delete [IPv4, Space]
+- ip_subnet_list [space] 
+- ip_address_find_free [subnet_id]
+- ip_address_add [hostname, ipv4, space ]
+- ip_address_delete [ipv4, space]
 
 ### via Playbooks 
 ```
@@ -27,6 +28,23 @@ DO NOT USE IT (yet) in production environnement
      ipm_username=ipmadmin
      ipm_password=admin
      ipm_action=ip_space_list
+
+  - name: list usable subnet from a space
+    eip:
+     ipm_server=10.0.0.4
+     ipm_username=ipmadmin
+     ipm_password=admin
+     ipm_action=ip_subnet_list
+     ipm_space=NY_space
+
+  - name: find one free IP address on a subnet
+    eip:
+     ipm_server=10.0.0.4
+     ipm_username=ipmadmin
+     ipm_password=admin
+     ipm_action=ip_address_find_free
+     ipm_subnet_id=4
+
   - name: add IP on space
     eip:
      ipm_server=10.0.0.4
@@ -34,15 +52,9 @@ DO NOT USE IT (yet) in production environnement
      ipm_password=admin
      ipm_action=ip_address_add
      ipm_space=NY_space
-     ipm_ip_name=ansible999
+     ipm_hostname=hello-ansible
      ipm_hostaddr='192.168.1.103'
-  - name: properties of a space
-    eip:
-     ipm_server=10.0.0.4
-     ipm_username=ipmadmin
-     ipm_password=admin
-     ipm_action=ip_space_info
-     ipm_space_id=5
+
   - name: delete IP address
     eip:
      ipm_server=10.0.0.4
