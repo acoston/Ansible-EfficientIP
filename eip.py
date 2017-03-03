@@ -15,10 +15,11 @@
 DOCUMENTATION = '''
 ---
 module: EfficientIP 
-version_added: "0.5"
+version_added: "0.6"
 short_description: Ansible interface to the REST/RPC EfficientIP SOLIDServer API
 description:
 	- works on 6.0.0P3a (don't even try on other version, please upgrade)
+	- support simple action to make ansible/efficientip working together (update IPAM/update cname in DNS)
 '''
 
 import base64
@@ -88,7 +89,7 @@ class Eip(object):
                 ipm_changed=True
 
         elif req_status_code == 200:
-	    if ipm_cmd == 'rest/ip_delete': 
+	    if ipm_cmd == 'rest/ip_delete' or ipm_cmd == 'rest/dns_rr_delete' : 
                 ipm_check=True
                 ipm_changed=True
             else:
@@ -135,6 +136,17 @@ class Eip(object):
        querystring =  {'subnet_id' : ipm_subnet_id, 'max_find' : '1'} 
        return self.req(method,ipm_cmd,querystring)
 
+    def dns_cname_add(self,ipm_alias_fqdn,ipm_alias_value,ipm_alias_ttl):
+       method = 'post'
+       ipm_cmd = 'rest/dns_rr_add'
+       querystring = {'rr_type': 'cname','rr_name': ipm_alias_fqdn, 'value1' : ipm_alias_value, 'rr_ttl' : ipm_alias_ttl }
+       return self.req(method,ipm_cmd,querystring)
+
+    def dns_cname_delete(self,ipm_alias_fqdn,ipm_alias_value):
+       method = 'delete'
+       ipm_cmd = 'rest/dns_rr_delete'
+       querystring = {'rr_name': ipm_alias_fqdn, 'value1' : ipm_alias_value}
+       return self.req(method,ipm_cmd,querystring)
 
 
 # ==============================================================
@@ -157,11 +169,16 @@ def main():
             ipm_subnet_id    = dict(required=False),
             ipm_hostname     = dict(required=False),
             ipm_hostaddr     = dict(required=False),
+    	    ipm_alias_fqdn   = dict(required=False),
+            ipm_alias_value  = dict(required=False),
+            ipm_alias_ttl    = dict(required=False),
             ipm_action       = dict(required=True, choices=['ip_space_list',
                                                             'ip_subnet_list',
                                                             'ip_address_add',
                                                             'ip_address_delete',
-                                                            'ip_address_find_free'])
+                                                            'ip_address_find_free',
+                                                            'dns_cname_delete',
+							    'dns_cname_add'])
         ), supports_check_mode=False
     )   
 
@@ -175,10 +192,14 @@ def main():
     ipm_subnet_id   = module.params["ipm_subnet_id"]
     ipm_hostname    = module.params["ipm_hostname"]
     ipm_hostaddr    = module.params["ipm_hostaddr"]
+    ipm_alias_fqdn  = module.params["ipm_alias_fqdn"]
+    ipm_alias_value = module.params["ipm_alias_value"]
+    ipm_alias_ttl   = module.params["ipm_alias_ttl"]
     ipm_action      = module.params["ipm_action"]
 
     try:
         eip = Eip(module, ipm_server, ipm_username, ipm_password)
+
         if ipm_action == 'ip_space_list':
             result = eip.ip_space_list()
             if result[1] == True:
@@ -233,6 +254,27 @@ def main():
             else:
                 raise Exception()
 
+        if ipm_action == 'dns_cname_add':
+            result = eip.dns_cname_add(ipm_alias_fqdn,ipm_alias_value,ipm_alias_ttl)
+            if result[1] == True:
+                req_output = {"output" : "entry added" }
+                module.exit_json(changed=result[2], result=req_output)
+            elif result[1] == False: 
+                req_output = {"output" : result[0] }
+                module.exit_json(changed=result[2], result=req_output, failed=True)
+            else:
+                raise Exception()
+    
+        if ipm_action == 'dns_cname_delete':
+            result = eip.dns_cname_delete(ipm_alias_fqdn,ipm_alias_value)
+            if result[1] == True:
+                req_output = {"output" : "entry deleted" }
+                module.exit_json(changed=result[2], result=req_output)
+            elif result[1] == False: 
+                req_output = {"output" : result[0] }
+                module.exit_json(changed=result[2], result=req_output, failed=True)
+            else:
+                raise Exception()
 
     except Exception as kaboom:
                 module.fail_json(msg=str(kaboom))
