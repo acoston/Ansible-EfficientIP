@@ -48,3 +48,21 @@
      ipm_space='NY_space'
      ipm_hostaddr=192.168.1.152
 
+  - name: add CNAME 
+    eip:
+     ipm_server=<your_ipm_ipaddress_or_hostname_here>
+     ipm_username=<your_ipm_user_here>
+     ipm_password=<your_ipm_pwd_here>
+     ipm_action=dns_cname_add
+     ipm_alias_fqdn=alias.mydomain.net
+     ipm_alias_value=hostname.mydomain.net
+     ipm_alias_ttl=600
+
+  - name: delete CNAME
+    eip:
+     ipm_server=<your_ipm_ipaddress_or_hostname_here>
+     ipm_username=<your_ipm_user_here>
+     ipm_password=<your_ipm_pwd_here>
+     ipm_action=dns_cname_delete
+     ipm_alias_fqdn=alias.mydomain.net
+
