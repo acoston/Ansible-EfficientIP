@@ -24,32 +24,32 @@ DO NOT USE IT (yet) in production environnement
   tasks:
   - name: list space
     eip:
-     ipm_server=10.0.0.4
-     ipm_username=ipmadmin
-     ipm_password=admin
+     ipm_server=<your_ipm_ipaddress_or_hostname_here>
+     ipm_username=<your_ipm_admin_user_here>
+     ipm_password=<your_ipm_admin_password_here>
      ipm_action=ip_space_list
 
   - name: list usable subnet from a space
     eip:
-     ipm_server=10.0.0.4
-     ipm_username=ipmadmin
-     ipm_password=admin
+     ipm_server=<your_ipm_ipaddress_or_hostname_here>
+     ipm_username=<your_ipm_admin_user_here>
+     ipm_password=<your_ipm_admin_password_here>
      ipm_action=ip_subnet_list
      ipm_space=NY_space
 
   - name: find one free IP address on a subnet
     eip:
-     ipm_server=10.0.0.4
-     ipm_username=ipmadmin
-     ipm_password=admin
+     ipm_server=<your_ipm_ipaddress_or_hostname_here>
+     ipm_username=<your_ipm_admin_user_here>
+     ipm_password=<your_ipm_admin_password_here>
      ipm_action=ip_address_find_free
      ipm_subnet_id=4
 
   - name: add IP on space
     eip:
-     ipm_server=10.0.0.4
-     ipm_username=ipmadmin
-     ipm_password=admin
+     ipm_server=<your_ipm_ipaddress_or_hostname_here>
+     ipm_username=<your_ipm_admin_user_here>
+     ipm_password=<your_ipm_admin_password_here>
      ipm_action=ip_address_add
      ipm_space=NY_space
      ipm_hostname=hello-ansible
@@ -57,9 +57,9 @@ DO NOT USE IT (yet) in production environnement
 
   - name: delete IP address
     eip:
-     ipm_server=10.0.0.4
-     ipm_username=ipmadmin
-     ipm_password=admin
+     ipm_server=<your_ipm_ipaddress_or_hostname_here>
+     ipm_username=<your_ipm_admin_user_here>
+     ipm_password=<your_ipm_admin_password_here>
      ipm_action=ip_address_delete
      ipm_space=NY_space
      ipm_hostaddr='192.168.1.103'
