@@ -4,7 +4,7 @@
 
 #   WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP
 
-#                     FOR TESTING ONLY 
+#                     FOR TESTING ONLY
 
 #          DO NOT USE IN PRODUCTION ENVIRONNEMENT
 
@@ -15,10 +15,10 @@
 DOCUMENTATION = '''
 ---
 module: EfficientIP 
-version_added: "0.4"
+version_added: "0.5"
 short_description: Ansible interface to the REST/RPC EfficientIP SOLIDServer API
 description:
-         - to come
+	- works on 6.0.0P3a (don't even try on other version, please upgrade)
 '''
 
 import base64
@@ -50,15 +50,10 @@ class Eip(object):
             session = requests.request(method, self.base_url + ipm_cmd, params=querystring, headers=self.ipm_auth_hdr, verify=False, timeout=10)
         except:
             try:
-                # ugly hack to catch the 204 with playload from some rest/ip_delete!
                 if session:
                     req_status_code = session.status_code
-                    if req_status_code != 204 and ipm_cmd == 'rest/ip_delete':
-                        req_output = {"error" : "SOLIDServer unreachable"}
-                        self.module.exit_json( unreachable=True, result=req_output)
-                    elif ipm_cmd == 'rest/ip_delete':
-                        req_output = {"output" : "entry deleted" }
-                        self.module.exit_json(changed=True, result=req_output)
+                    req_output = {"error" : "SOLIDServer unreachable"}
+                    self.module.exit_json( unreachable=True, result=req_output)
             except:
                 req_output = {"error" : "SOLIDServer unreachable"}
                 self.module.exit_json(changed=False, unreachable=True, result=req_output)
@@ -68,26 +63,7 @@ class Eip(object):
 # ==============================================================
 # IPAM API json output control
 
-# http code 201 created on add /204 no content on del/ 400 on rep del
-# errno 1/errno 0/errno XXXX/category/errmesg/severity/ret_oid, etc....
-# first try, still not working on ip_space_list/ip_space_info
-# with delete no content...= exception.
-# changed = True/False
-# unreachable = True/False
-# failed = True/False
-
-
-        # ip_delete with hostaddr not ip_id
-        if ipm_cmd == 'rest/ip_delete':
-            if req_status_code == 204:
-                        req_output = {"output" : "entry deleted" }
-                        self.module.exit_json(changed=True, result=req_output)
-            
-            if req_status_code == 400:
-                        req_output = {"output" : "cannot find entry" }
-                        self.module.exit_json( failed=True, result=req_output)
-
-        # Basic status code handling without data
+        # Basic status code handling without data to ouput
         if req_status_code == 204:
             req_output = {"output" : "no data" }
             self.module.exit_json(result=req_output)
@@ -96,28 +72,27 @@ class Eip(object):
             req_output = {"error" : "check SOLIDServer credential" }
             self.module.exit_json( failed=True, result=req_output )
 
+        if req_status_code == 400:
+            req_output = {"error" : "check SOLIDServer or parameter format" }
+            self.module.exit_json( failed=True, result=req_output )
+
         if req_status_code == 500:
             req_output = {"error" : "something went wrong" }
             self.module.exit_json( failed=True, result=req_output )
 
-        # Status code and ipm errno
+        # status code handling: from there data are expected
         req_output = session.json()
-        if req_status_code == 200:
-            ipm_errno = req_output[0]['errno']
-            if ipm_errno == '0': #voodoo here
+
+        if req_status_code == 201:
                 ipm_check=True
-                ipm_changed=False
-            else:
-                ipm_check=False
-                ipm_changed=False
-        
-        elif req_status_code == 201:
-            ipm_errno = req_output[0]['errno']
-            if ipm_errno == 1:  #voodoo here 
+                ipm_changed=True
+
+        elif req_status_code == 200:
+	    if ipm_cmd == 'rest/ip_delete': 
                 ipm_check=True
                 ipm_changed=True
             else:
-                ipm_check=False
+                ipm_check=True
                 ipm_changed=False
         
         else:
@@ -222,7 +197,7 @@ def main():
                 for rows in result[0]:
                      raw_network = int(rows['start_ip_addr'],16)
                      network = '.'.join( [ str((raw_network >> 8*i) % 256)  for i in [3,2,1,0] ])
-                     data.append({ 'ipm_subnet_size' : rows['subnet_size'], 'ipm_subnet_addr' : network, 'ipm_subnet' :  rows['subnet_name'] })
+                     data.append({ 'ipm_subnet_size' : rows['subnet_size'], 'ipm_subnet_addr' : network, 'ipm_subnet_id' : rows['subnet_id'], 'ipm_subnet' :  rows['subnet_name'] })
                 req_output = { 'output' : data } 
                 module.exit_json(changed=result[2], result=req_output)
             else:
