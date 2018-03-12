@@ -5,4 +5,4 @@ install:
  - pip install ansible
  - pip install requests
 script:
- - pytest
+ - ansible-test sanity --list-tests
