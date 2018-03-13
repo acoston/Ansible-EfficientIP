@@ -1,11 +1,10 @@
 language: python
 python:
  - "2.7"
-services:
- - docker
 install:
- - pip install ansible
- - pip install ansible-test
+ - git clone https://github.com/ansible/ansible
  - pip install requests
+ - pip install jinja2
+ - pi2 install pyyaml
 script:
- - ansible-test sanity --list-tests
+ - ./ansible/hacking/test-module -m eip.py
