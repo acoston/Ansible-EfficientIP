@@ -1,3 +1,5 @@
+[![Build status](https://travis-ci.org/acoston/Ansible-EfficientIP.svg)](https://travis-ci.org/acoston/Ansible-EfficientIP)
+
 # EfficientIP Ansible module
 An EfficientIP Solidserver module for Ansible
 
