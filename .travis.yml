@@ -7,5 +7,5 @@ install:
  - pip install jinja2
  - pip install pyyaml
 script:
- - ./ansible/hacking/env-setup
+ - . ansible/hacking/env-setup
  - ./ansible/hacking/test-module -m eip.py
