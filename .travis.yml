@@ -5,6 +5,6 @@ install:
  - git clone https://github.com/ansible/ansible
  - pip install requests
  - pip install jinja2
- - pi2 install pyyaml
+ - pip install pyyaml
 script:
  - ./ansible/hacking/test-module -m eip.py
