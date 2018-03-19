@@ -6,7 +6,6 @@ An EfficientIP Solidserver module for Ansible
 ## Disclaimer
 
 This module is still in heavy developpment.
-DO NOT USE IT (yet) in production environnement 
 
 ## Install
 
