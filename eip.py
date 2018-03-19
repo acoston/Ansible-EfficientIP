@@ -3,11 +3,6 @@
 # ==============================================================
 
 #   WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP
-
-#                     FOR TESTING ONLY
-
-#          DO NOT USE IN PRODUCTION ENVIRONNEMENT
-
 #   WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP WIP
 
 # ==============================================================
@@ -18,7 +13,7 @@ module: EfficientIP
 version_added: "0.6"
 short_description: Ansible interface to the REST/RPC EfficientIP SOLIDServer API
 description:
-	- works on 6.0.0P3a (don't even try on other version, please upgrade)
+	- works on 6.0.0P3a (don't even try on earlier version, please upgrade)
 	- support simple action to make ansible/efficientip working together (update IPAM/update cname in DNS)
 '''
 
