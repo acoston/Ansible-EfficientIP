@@ -1,0 +1,22 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: False
+  vars:
+   ipm_server: <PUT-IPAM-HOSTNAME-OR-IP-HERE>
+   ipm_username: <PUT-IPAM-USER-HERE>
+   ipm_password: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          63663431626463306331363739343039616365633137623066313738313537646664373364616131
+          6566          PUT VAULTED PASSWORD HERE           346263386464633332333534393264
+          31362323232323232323232323234224242424242424242424263763313133613239346361386165
+          6566336631633264620a623239616632363737353164346466313939396466386233613836643933
+          3766
+  tasks:
+  - name: list subnet of a space
+    no_log: true
+    eip: ipm_server={{ ipm_server }} ipm_username={{ ipm_username }} ipm_password={{ ipm_password }} 
+         ipm_action=ip_space_list
+    register: eip
+  - debug: 
+      var: eip.result.output
