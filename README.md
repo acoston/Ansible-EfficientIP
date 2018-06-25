@@ -60,8 +60,8 @@ This module is still in heavy developpment.
      ipm_action=ip_address_add
      ipm_space=NY_space
      ipm_hostname=hello-ansible
+     ipm_classparam='metadata1=somedata&metadata2=somedata&[&...]'
      ipm_hostaddr='{{ eip.result.output }}'
-     ipm_classparam='metadata1=somedata&metadata2=somedata&persistent_dns_rr=1[&...]'
 e=1'
 
   - name: delete IP address

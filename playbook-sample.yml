@@ -38,7 +38,7 @@
      ipm_action=ip_address_add
      ipm_space='NY_space'
      ipm_hostname=put-your-hostname-here
-     ipm_classparam='class_param_object1=value1&class_param_object2=value2&class_param_object3=value3&...'
+     ipm_classparam='class_param_object1=value1&class_param_object2=value2&...'
      ipm_hostaddr='{{ eip.result.output }}'
 
   - name: delete IP address

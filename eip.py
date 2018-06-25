@@ -13,10 +13,10 @@ module: EfficientIP
 version_added: "0.7"
 short_description: Ansible interface to the REST/RPC EfficientIP SOLIDServer API
 description:
-	- works with SOLIDserver 6.0.x (don't even try on earlier version, please upgrade)
-    - works with Ansible 2.4 and Ansible 2.5 (python2.7)
-	- supports simple action to make ansible/efficientip working together (update IPAM/update cname in DNS)
-    - supports EIP class parameters when adding an IP or searching a Subnet
+  - works with SOLIDserver 6.0.x (don't even try on earlier version, please upgrade)
+  - works with Ansible 2.4 and Ansible 2.5 (python2.7)
+  - supports simple action to make ansible/efficientip working together (update IPAM/update cname in DNS)
+  - supports EIP class parameters when adding an IP or searching a Subnet
 '''
 
 import base64
