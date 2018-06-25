@@ -40,6 +40,7 @@ This module is still in heavy developpment.
      ipm_password=<your_ipm_admin_password_here>
      ipm_action=ip_subnet_list
      ipm_space=NY_space
+     ipm_classparam='metadata1:somedata'
     register: eip
 
   - name: find one free IP address on a subnet
@@ -60,6 +61,8 @@ This module is still in heavy developpment.
      ipm_space=NY_space
      ipm_hostname=hello-ansible
      ipm_hostaddr='{{ eip.result.output }}'
+     ipm_classparam='metadata1=somedata&metadata2=somedata&persistent_dns_rr=1[&...]'
+e=1'
 
   - name: delete IP address
     eip:

@@ -10,11 +10,13 @@
 DOCUMENTATION = '''
 ---
 module: EfficientIP 
-version_added: "0.6"
+version_added: "0.7"
 short_description: Ansible interface to the REST/RPC EfficientIP SOLIDServer API
 description:
-	- works on 6.0.0P3a (don't even try on earlier version, please upgrade)
-	- support simple action to make ansible/efficientip working together (update IPAM/update cname in DNS)
+	- works with SOLIDserver 6.0.x (don't even try on earlier version, please upgrade)
+    - works with Ansible 2.4 and Ansible 2.5 (python2.7)
+	- supports simple action to make ansible/efficientip working together (update IPAM/update cname in DNS)
+    - supports EIP class parameters when adding an IP or searching a Subnet
 '''
 
 import base64
@@ -107,16 +109,21 @@ class Eip(object):
        querystring = ''
        return self.req(method,ipm_cmd,querystring)
 
-    def ip_subnet_list(self, ipm_space):
+    def ip_subnet_list(self, ipm_space, ipm_classparam):
        method = 'get'
        ipm_cmd = 'rest/ip_block_subnet_list'
-       querystring = {'WHERE' : 'site_name = \''+ ipm_space +'\' AND is_terminal = \'1\''}
+
+       if ipm_classparam is not None:
+        obj1, param1 = ipm_classparam.split(':')
+        querystring = {'TAGS' : 'network.'+ obj1 +'' , 'WHERE' : 'site_name = \''+ ipm_space +'\' AND is_terminal = \'1\' AND tag_network_'+ obj1 +' = \''+ param1 +'\''}
+       else:
+        querystring = {'WHERE' : 'site_name = \''+ ipm_space +'\' AND is_terminal = \'1\''}
        return self.req(method,ipm_cmd,querystring)
 
-    def ip_address_add(self,ipm_space,ipm_hostname,ipm_hostaddr):
+    def ip_address_add(self,ipm_space,ipm_hostname,ipm_hostaddr,ipm_classparam):
        method = 'post'
        ipm_cmd = 'rest/ip_add'
-       querystring = {'site_name': ipm_space,'ip_name': ipm_hostname,'hostaddr': ipm_hostaddr}
+       querystring = {'site_name': ipm_space,'name': ipm_hostname,'hostaddr': ipm_hostaddr, 'ip_class_parameters': ipm_classparam}
        return self.req(method,ipm_cmd,querystring)
 
     def ip_address_delete(self,ipm_space,ipm_hostaddr):
@@ -167,6 +174,7 @@ def main():
     	    ipm_alias_fqdn   = dict(required=False),
             ipm_alias_value  = dict(required=False),
             ipm_alias_ttl    = dict(required=False),
+            ipm_classparam   = dict(required=False),
             ipm_action       = dict(required=True, choices=['ip_space_list',
                                                             'ip_subnet_list',
                                                             'ip_address_add',
@@ -190,7 +198,8 @@ def main():
     ipm_alias_fqdn  = module.params["ipm_alias_fqdn"]
     ipm_alias_value = module.params["ipm_alias_value"]
     ipm_alias_ttl   = module.params["ipm_alias_ttl"]
-    ipm_action      = module.params["ipm_action"]
+    ipm_classparam  = module.params["ipm_classparam"]
+    ipm_action = module.params["ipm_action"]   
 
     try:
         eip = Eip(module, ipm_server, ipm_username, ipm_password)
@@ -207,7 +216,7 @@ def main():
                 raise Exception()
 
         if ipm_action == 'ip_subnet_list':
-            result = eip.ip_subnet_list(ipm_space)
+            result = eip.ip_subnet_list(ipm_space,ipm_classparam)
             if result[1] == True:
                 data = []
                 for rows in result[0]:
@@ -220,7 +229,7 @@ def main():
                 raise Exception()
 
         if ipm_action == 'ip_address_add':
-            result = eip.ip_address_add(ipm_space,ipm_hostname,ipm_hostaddr)
+            result = eip.ip_address_add(ipm_space,ipm_hostname,ipm_hostaddr,ipm_classparam)
             if result[1] == True:
                 req_output = {"output" : "entry added" }
                 module.exit_json(changed=result[2], result=req_output)
