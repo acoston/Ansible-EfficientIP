@@ -112,7 +112,6 @@ class Eip(object):
     def ip_subnet_list(self,ipm_space,ipm_classparam,ipm_classname):
        method = 'get'
        ipm_cmd = 'rest/ip_block_subnet_list'
-
        if ipm_classparam is not None:
         obj1, param1 = ipm_classparam.split('=')
         querystring = {'TAGS' : 'network.'+ obj1 +'' , 'WHERE' : 'site_name = \''+ ipm_space +'\' AND is_terminal = \'1\' AND tag_network_'+ obj1 +' = \''+ param1 +'\''}
@@ -125,9 +124,6 @@ class Eip(object):
     def ip_address_add(self,ipm_space,ipm_hostname,ipm_hostaddr,ipm_macaddr,ipm_classparam,ipm_classname):
        method = 'post'
        ipm_cmd = 'rest/ip_add'
-       if ipm_classparam is not None:
-        classparam_set = '\'ip_class_parameters\': ipm_classparam'
-
        querystring = {'site_name': ipm_space,'name': ipm_hostname,'hostaddr': ipm_hostaddr, 'mac_addr' : ipm_macaddr, 'ip_class_parameters' : ipm_classparam, 'ip_class_name': ipm_classname}
        return self.req(method,ipm_cmd,querystring)
 
