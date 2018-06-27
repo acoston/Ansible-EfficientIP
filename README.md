@@ -15,12 +15,12 @@ This module is still in heavy developpment.
 ## Usage
 ### Task listing...
 - ip_space_list
-- ip_subnet_list [space] 
-- ip_address_find_free [subnet_id]
-- ip_address_add [hostname, ipv4, space ]
-- ip_address_delete [ipv4, space]
-- dns_cname_add [alias fqdn, hostname, ttl]
-- dns_cname_delete [alias fqdn]
+- ip_subnet_list space [ one_class_parameter | class_name ]  
+- ip_address_find_free subnet_id
+- ip_address_add hostname, ipv4, space [ mac_addr, class_name, class_parameters ]
+- ip_address_delete ipv4, space
+- dns_cname_add alias_fqdn, hostname, ttl
+- dns_cname_delete alias_fqdn
 
 
 ### via Playbooks 
@@ -40,7 +40,9 @@ This module is still in heavy developpment.
      ipm_password=<your_ipm_admin_password_here>
      ipm_action=ip_subnet_list
      ipm_space=NY_space
-     ipm_classparam='metadata1:somedata'
+     ipm_classparam='metadata1=somedata'
+     -or- 
+     ipm_classname=myclass
     register: eip
 
   - name: find one free IP address on a subnet
@@ -59,10 +61,10 @@ This module is still in heavy developpment.
      ipm_password=<your_ipm_admin_password_here>
      ipm_action=ip_address_add
      ipm_space=NY_space
-     ipm_hostname=hello-ansible
-     ipm_classparam='metadata1=somedata&metadata2=somedata&[&...]'
+     ipm_hostname=hello.mydomain.net
+     ipm_classparam='metadata1=somedata&metadata2=somedata&[...]'
+     ipm_classname=myclass
      ipm_hostaddr='{{ eip.result.output }}'
-e=1'
 
   - name: delete IP address
     eip:
@@ -71,7 +73,7 @@ e=1'
      ipm_password=<your_ipm_admin_password_here>
      ipm_action=ip_address_delete
      ipm_space=NY_space
-     ipm_hostaddr='192.168.1.103'
+     ipm_hostaddr=192.168.1.103
 
   - name: add CNAME
     eip:
