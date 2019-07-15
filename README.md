@@ -68,8 +68,8 @@ tasks:
     username: dummyusername
     password: dummypassword
     type: CNAME
-    alias_fqdn=alias.mydomain.net
-    alias_value=hostname.mydomain.net
-    alias_ttl=600
+    alias_fqdn: alias.mydomain.net
+    alias_value: hostname.mydomain.net
+    alias_ttl: 600
 
 ```
