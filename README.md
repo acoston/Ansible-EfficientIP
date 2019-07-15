@@ -5,91 +5,71 @@ An EfficientIP Solidserver module for Ansible
 
 ## Disclaimer
 
-This module is still in heavy developpment.
+This module is still in development.
 
 ## Install
 
-- put it in your Ansible module directory 
+- put it in your Ansible module directory
 - you also need to install the "requests" py module
 
-## Usage
-### Task listing...
-- ip_space_list
-- ip_subnet_list space [ one_class_parameter | class_name ]  
-- ip_address_find_free subnet_id
-- ip_address_add hostname, ipv4, space [ mac_addr, class_name, class_parameters ]
-- ip_address_delete ipv4, space
-- dns_cname_add alias_fqdn, hostname, ttl
-- dns_cname_delete alias_fqdn
-
-
-### via Playbooks 
+### Examples
 ```
-  tasks:
-  - name: list space
-    eip:
-     ipm_server=<your_ipm_ipaddress_or_hostname_here>
-     ipm_username=<your_ipm_admin_user_here>
-     ipm_password=<your_ipm_admin_password_here>
-     ipm_action=ip_space_list
+tasks:
+- name: list space
+  efficientip:
+    ipam_server: server.mydomain.com
+    username: dummyusername
+    password: dummypassword
+    space: LIST
 
-  - name: list usable subnet from a space
-    eip:
-     ipm_server=<your_ipm_ipaddress_or_hostname_here>
-     ipm_username=<your_ipm_admin_user_here>
-     ipm_password=<your_ipm_admin_password_here>
-     ipm_action=ip_subnet_list
-     ipm_space=NY_space
-     ipm_classparam='metadata1=somedata'
-     -or- 
-     ipm_classname=myclass
-    register: eip
+- name: list usable subnet from a space
+  efficientip:
+    ipam_server: server.mydomain.com
+    username: dummyusername
+    password: dummypassword
+    subnet: LIST
+    space: NY_space
+    classparam: 'metadata1=somedata'
+    -or-
+    classname: myclass
 
-  - name: find one free IP address on a subnet
-    eip:
-     ipm_server=<your_ipm_ipaddress_or_hostname_here>
-     ipm_username=<your_ipm_admin_user_here>
-     ipm_password=<your_ipm_admin_password_here>
-     ipm_action=ip_address_find_free
-     ipm_subnet_id=4
-    register: eip
+- name: find one free IP address on a subnet
+  efficientip:
+    ipam_server: server.mydomain.com
+    username: dummyusername
+    password: dummypassword
+    hostaddr: FIND_FREE
+    subnet_id=4
 
-  - name: add IP on space
-    eip:
-     ipm_server=<your_ipm_ipaddress_or_hostname_here>
-     ipm_username=<your_ipm_admin_user_here>
-     ipm_password=<your_ipm_admin_password_here>
-     ipm_action=ip_address_add
-     ipm_space=NY_space
-     ipm_hostname=hello.mydomain.net
-     ipm_classparam='metadata1=somedata&metadata2=somedata&[...]'
-     ipm_classname=myclass
-     ipm_hostaddr='{{ eip.result.output }}'
+- name: add IP on space
+  efficientip:
+    ipam_server: server.mydomain.com
+    username: dummyusername
+    password: dummypassword
+    type: A
+    state: present
+    space: NY_space
+    record: test.mydomain.com
+    hostaddr: 127.0.0.1
 
-  - name: delete IP address
-    eip:
-     ipm_server=<your_ipm_ipaddress_or_hostname_here>
-     ipm_username=<your_ipm_admin_user_here>
-     ipm_password=<your_ipm_admin_password_here>
-     ipm_action=ip_address_delete
-     ipm_space=NY_space
-     ipm_hostaddr=192.168.1.103
+- name: delete IP on space
+  efficientip:
+    ipam_server: server.mydomain.com
+    username: dummyusername
+    password: dummypassword
+    type: A
+    state: absent
+    space: NY_space
+    hostaddr: 127.0.0.1
 
-  - name: add CNAME
-    eip:
-     ipm_server=<your_ipm_ipaddress_or_hostname_here>
-     ipm_username=<your_ipm_user_here>
-     ipm_password=<your_ipm_pwd_here>
-     ipm_action=dns_cname_add
-     ipm_alias_fqdn=alias.mydomain.net
-     ipm_alias_value=hostname.mydomain.net
-     ipm_alias_ttl=600
+- name: add CNAME
+  efficientip:
+    ipam_server: serer.mydomain.com
+    username: dummyusername
+    password: dummypassword
+    type: CNAME
+    alias_fqdn=alias.mydomain.net
+    alias_value=hostname.mydomain.net
+    alias_ttl=600
 
-  - name: delete CNAME
-    eip:
-     ipm_server=<your_ipm_ipaddress_or_hostname_here>
-     ipm_username=<your_ipm_user_here>
-     ipm_password=<your_ipm_pwd_here>
-     ipm_action=dns_cname_delete
-     ipm_alias_fqdn=alias.mydomain.net
 ```
