@@ -190,9 +190,9 @@ def req(base_url, ipm_auth_hdr, method, ipm_cmd, querystring):
         try:
             if session:
                 req_status_code = session.status_code
-                req_output = {"error" : "SOLIDServer unreachable"}
+                req_output = {"error" : "EfficientIP Server unreachable"}
         except:
-             req_output = {"error" : "SOLIDServer unreachable"}
+             req_output = {"error" : "EfficientIP Server unreachable"}
 
     req_status_code = session.status_code
 
@@ -200,10 +200,10 @@ def req(base_url, ipm_auth_hdr, method, ipm_cmd, querystring):
         req_output = {"output" : "no data" }
 
     if req_status_code == 401:
-        req_output = {"error" : "check SOLIDServer credential" }
+        req_output = {"error" : "check EfficientIP Server credential" }
 
     if req_status_code == 400:
-        req_output = {"error" : "check SOLIDServer or parameter format" }
+        req_output = {"error" : "check EfficientIP Server or parameter format" }
 
     if req_status_code == 500:
         req_output = {"error" : "something went wrong" }
