@@ -17,16 +17,16 @@ This module is still in development.
 tasks:
 - name: list space
   efficientip:
-    ipam_server: server.mydomain.com
-    username: dummyusername
-    password: dummypassword
+    eip_server: server.mydomain.com
+    eip_username: dummyusername
+    eip_password: dummypassword
     space: LIST
 
 - name: list usable subnet from a space
   efficientip:
-    ipam_server: server.mydomain.com
-    username: dummyusername
-    password: dummypassword
+    eip_server: server.mydomain.com
+    eip_username: dummyusername
+    eip_password: dummypassword
     subnet: LIST
     space: NY_space
     classparam: 'metadata1=somedata'
@@ -35,17 +35,17 @@ tasks:
 
 - name: find one free IP address on a subnet
   efficientip:
-    ipam_server: server.mydomain.com
-    username: dummyusername
-    password: dummypassword
+    eip_server: server.mydomain.com
+    eip_username: dummyusername
+    eip_password: dummypassword
     hostaddr: FIND_FREE
     subnet_id=4
 
 - name: add IP on space
   efficientip:
-    ipam_server: server.mydomain.com
-    username: dummyusername
-    password: dummypassword
+    eip_server: server.mydomain.com
+    eip_username: dummyusername
+    eip_password: dummypassword
     type: A
     state: present
     space: NY_space
@@ -54,9 +54,9 @@ tasks:
 
 - name: delete IP on space
   efficientip:
-    ipam_server: server.mydomain.com
-    username: dummyusername
-    password: dummypassword
+    eip_server: server.mydomain.com
+    eip_username: dummyusername
+    eip_password: dummypassword
     type: A
     state: absent
     space: NY_space
@@ -64,9 +64,9 @@ tasks:
 
 - name: add CNAME
   efficientip:
-    ipam_server: serer.mydomain.com
-    username: dummyusername
-    password: dummypassword
+    eip_server: serer.mydomain.com
+    eip_username: dummyusername
+    eip_password: dummypassword
     type: CNAME
     alias_fqdn: alias.mydomain.net
     alias_value: hostname.mydomain.net

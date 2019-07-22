@@ -6,16 +6,16 @@
   tasks:
   - name: list space
     efficientip:
-      ipam_server: server.mydomain.com
-      username: dummyusername
-      password: dummypassword
+      eip_server: server.mydomain.com
+      eip_username: dummyusername
+      eip_password: dummypassword
       space: LIST
 
   - name: list subnet of a space
     efficientip:
-      ipam_server: server.mydomain.com
-      username: dummyusername
-      password: dummypassword
+      eip_server: server.mydomain.com
+      eip_username: dummyusername
+      eip_password: dummypassword
       subnet: LIST
       space: NY_space
       classparam: 'metadata1=somedata'
@@ -23,18 +23,18 @@
 
   - name: find one free IP address on a subnet
     efficientip:
-      ipam_server: server.mydomain.com
-      username: dummyusername
-      password: dummypassword
+      eip_server: server.mydomain.com
+      eip_username: dummyusername
+      eip_password: dummypassword
       hostaddr: FIND_FREE
       subnet_id: 4
     register: eip
 
   - name: add IP on space
     efficientip:
-      ipam_server: server.mydomain.com
-      username: dummyusername
-      password: dummypassword
+      eip_server: server.mydomain.com
+      eip_username: dummyusername
+      eip_password: dummypassword
       type: A
       state: present
       space: NY_space
@@ -43,9 +43,9 @@
 
   - name: delete IP address
     efficientip:
-      ipam_server: server.mydomain.com
-      username: dummyusername
-      password: dummypassword
+      eip_server: server.mydomain.com
+      eip_username: dummyusername
+      eip_password: dummypassword
       type: A
       state: absent
       space: NY_space
@@ -53,9 +53,9 @@
 
   - name: add CNAME
     efficientip:
-      ipam_server: server.mydomain.com
-      username: dummyusername
-      password: dummypassword
+      eip_server: server.mydomain.com
+      eip_username: dummyusername
+      eip_password: dummypassword
       type: CNAME
       state: present
       alias_fqdn: alias.mydomain.net
@@ -64,9 +64,9 @@
 
   - name: delete CNAME
     efficientip:
-      ipam_server: server.mydomain.com
-      username: dummyusername
-      password: dummypassword
+      eip_server: server.mydomain.com
+      eip_username: dummyusername
+      eip_password: dummypassword
       type: CNAME
       state: absent
       alias_fqdn: alias.mydomain.net
