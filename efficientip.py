@@ -19,23 +19,23 @@ DOCUMENTATION = '''
 ---
 module: efficientip
 version_added: "2.9"
-short_description: Interface with Efficient IP
+short_description: Interface with EfficientIP
 description:
-   - "Manages domains and records via the Efficient IP Rest API
+   - "Manages domains and records via the EfficientIP Rest API
 options:
-  ipam_server:
+  eip_server:
     description:
-      - IPAM server URL
+      - EfficientIP server URL
     required: true
     type: str
-  username:
+  eip_username:
     description:
-      - IMAP user account
+      - EfficientIP user account
     required: true
     type: str
-  password:
+  eip_password:
     description:
-      - IPAM user password
+      - EfficientIP user password
     required: true
     type: str
   record:
@@ -44,12 +44,12 @@ options:
     type: str
   space:
     description:
-      - IPAM space name or ID
+      - EfficientIP space name or ID
       - If input "LIST" a list of spaces will be returned.
     type: str
   space_id:
     description:
-      - IPAM space name or ID
+      - EfficientIP space ID
     type: str
   subnet:
     description:
@@ -107,16 +107,16 @@ options:
 EXAMPLES = '''
 - name: list space
   efficientip:
-    ipam_server: server.mydomain.com
-    username: dummyusername
-    password: dummypassword
+    eip_server: server.mydomain.com
+    eip_username: dummyusername
+    eip_password: dummypassword
     space: LIST
 
 - name: list usable subnet from a space
   efficientip:
-    ipam_server: server.mydomain.com
-    username: dummyusername
-    password: dummypassword
+    eip_server: server.mydomain.com
+    eip_username: dummyusername
+    eip_password: dummypassword
     subnet: LIST
     space: NY_space
     classparam: 'metadata1=somedata'
@@ -125,17 +125,17 @@ EXAMPLES = '''
 
 - name: find one free IP address on a subnet
   efficientip:
-    ipam_server: server.mydomain.com
-    username: dummyusername
-    password: dummypassword
+    eip_server: server.mydomain.com
+    eip_username: dummyusername
+    eip_password: dummypassword
     hostaddr: FIND_FREE
     subnet_id: 4
 
 - name: add IP on space
   efficientip:
-    ipam_server: server.mydomain.com
-    username: dummyusername
-    password: dummypassword
+    eip_server: server.mydomain.com
+    eip_username: dummyusername
+    eip_password: dummypassword
     type: A
     state: present
     space: NY_space
@@ -144,9 +144,9 @@ EXAMPLES = '''
 
 - name: delete IP on space
   efficientip:
-    ipam_server: server.mydomain.com
-    username: dummyusername
-    password: dummypassword
+    eip_server: server.mydomain.com
+    eip_username: dummyusername
+    eip_password: dummypassword
     type: A
     state: absent
     space: NY_space
@@ -154,9 +154,9 @@ EXAMPLES = '''
 
 - name: add CNAME
   efficientip:
-    ipam_server: server.mydomain.com
-    username: dummyusername
-    password: dummypassword
+    eip_server: server.mydomain.com
+    eip_username: dummyusername
+    eip_password: dummypassword
     type: CNAME
     state: present
     alias_fqdn: alias.mydomain.net
@@ -165,9 +165,9 @@ EXAMPLES = '''
 
 - name: delete CNAME
   efficientip:
-    ipam_server: server.mydomain.com
-    username: dummyusername
-    password: dummypassword
+    eip_server: server.mydomain.com
+    eip_username: dummyusername
+    eip_password: dummypassword
     type: CNAME
     state: absent
     alias_fqdn: alias.mydomain.net
@@ -283,9 +283,9 @@ def main():
 
     module = AnsibleModule(
         argument_spec=dict(
-            ipam_server=dict(type='str', required=True),
-            username=dict(type='str', required=True),
-            password=dict(type='str',required=True, no_log=True),
+            eip_server=dict(type='str', required=True),
+            eip_username=dict(type='str', required=True),
+            eip_password=dict(type='str',required=True, no_log=True),
             record=dict(type='str'),
             space=dict(type='str'),
             space_id=dict(type='str'),
@@ -303,9 +303,9 @@ def main():
         )
     )
 
-    ipam_server = module.params.get('ipam_server')
-    username = module.params.get('username')
-    password = module.params.get('password')
+    eip_server = module.params.get('eip_server')
+    eip_username = module.params.get('eip_username')
+    eip_password = module.params.get('eip_password')
     record = module.params.get('record')
     space = module.params.get('space')
     space_id = module.params.get('space_id')
@@ -322,11 +322,11 @@ def main():
     state = module.params.get('state')
 
     ipm_auth_hdr = {
-    'X-IPM-Username': base64.b64encode(username),
-    'X-IPM-Password': base64.b64encode(password)
+    'X-IPM-Username': base64.b64encode(eip_username),
+    'X-IPM-Password': base64.b64encode(eip_password)
     }
 
-    base_url = "https://{host}/".format(host=ipam_server)
+    base_url = "https://{host}/".format(host=eip_server)
 
 
     try:
