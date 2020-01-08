@@ -5,67 +5,71 @@
 
   tasks:
   - name: list space
-    eip:
-     ipm_server=<your_ipm_ipaddress_or_hostname_here>
-     ipm_username=<your_ipm_user_here>
-     ipm_password=<your_ipm_pwd_here>
-     ipm_action=ip_space_list
+    efficientip:
+      eip_server: server.mydomain.com
+      eip_username: dummyusername
+      eip_password: dummypassword
+      space: LIST
 
   - name: list subnet of a space
-    eip:
-     ipm_server=<your_ipm_ipaddress_or_hostname_here>
-     ipm_username=<your_ipm_user_here>
-     ipm_password=<your_ipm_pwd_here>
-     ipm_action=ip_subnet_list
-     ipm_space='NY_space'
-     ipm_classparam='class_param_object1=value1'
+    efficientip:
+      eip_server: server.mydomain.com
+      eip_username: dummyusername
+      eip_password: dummypassword
+      subnet: LIST
+      space: NY_space
+      classparam: 'metadata1=somedata'
     register: eip
-  
+
   - name: find one free IP address on a subnet
-    eip:
-     ipm_server=<your_ipm_ipaddress_or_hostname_here>
-     ipm_username=<your_ipm_user_here>
-     ipm_password=<your_ipm_pwd_here>
-     ipm_action=ip_address_find_free
-     ipm_subnet_id=4
+    efficientip:
+      eip_server: server.mydomain.com
+      eip_username: dummyusername
+      eip_password: dummypassword
+      hostaddr: FIND_FREE
+      subnet_id: 4
     register: eip
 
   - name: add IP on space
-    eip:
-     ipm_server=<your_ipm_ipaddress_or_hostname_here>
-     ipm_username=<your_ipm_user_here>
-     ipm_password=<your_ipm_pwd_here>
-     ipm_action=ip_address_add
-     ipm_space='NY_space'
-     ipm_hostname=put-your-hostname-here
-     ipm_macaddr=00:11:22:33:44:55
-     ipm_classparam='class_param_object1=value1&class_param_object2=value2&...'
-     ipm_hostaddr='{{ eip.result.output }}'
+    efficientip:
+      eip_server: server.mydomain.com
+      eip_username: dummyusername
+      eip_password: dummypassword
+      type: A
+      state: present
+      space: NY_space
+      record: test.mydomain.com
+      hostaddr: '{{ eip.result.output }}'
 
   - name: delete IP address
-    eip:
-     ipm_server=<your_ipm_ipaddress_or_hostname_here>
-     ipm_username=<your_ipm_user_here>
-     ipm_password=<your_ipm_pwd_here>
-     ipm_action=ip_address_delete
-     ipm_space='NY_space'
-     ipm_hostaddr=192.168.1.152
+    efficientip:
+      eip_server: server.mydomain.com
+      eip_username: dummyusername
+      eip_password: dummypassword
+      type: A
+      state: absent
+      space: NY_space
+      hostaddr: 127.0.0.1
 
-  - name: add CNAME 
-    eip:
-     ipm_server=<your_ipm_ipaddress_or_hostname_here>
-     ipm_username=<your_ipm_user_here>
-     ipm_password=<your_ipm_pwd_here>
-     ipm_action=dns_cname_add
-     ipm_alias_fqdn=alias.mydomain.net
-     ipm_alias_value=hostname.mydomain.net
-     ipm_alias_ttl=600
+  - name: add CNAME
+    efficientip:
+      eip_server: server.mydomain.com
+      eip_username: dummyusername
+      eip_password: dummypassword
+      type: CNAME
+      state: present
+      alias_fqdn: alias.mydomain.net
+      alias_value: hostname.mydomain.net
+      alias_ttl: 600
 
   - name: delete CNAME
-    eip:
-     ipm_server=<your_ipm_ipaddress_or_hostname_here>
-     ipm_username=<your_ipm_user_here>
-     ipm_password=<your_ipm_pwd_here>
-     ipm_action=dns_cname_delete
-     ipm_alias_fqdn=alias.mydomain.net
+    efficientip:
+      eip_server: server.mydomain.com
+      eip_username: dummyusername
+      eip_password: dummypassword
+      type: CNAME
+      state: absent
+      alias_fqdn: alias.mydomain.net
+      alias_value: hostname.mydomain.net
+      alias_ttl: 600
 
