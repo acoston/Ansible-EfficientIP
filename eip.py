@@ -133,10 +133,10 @@ class Eip(object):
        querystring = {'site_name': ipm_space,'hostaddr': ipm_hostaddr}
        return self.req(method,ipm_cmd,querystring)
 
-    def ip_address_find_free(self,ipm_subnet_id):
+    def ip_address_find_free(self,ipm_subnet_id, ipm_begin_addr):
        method = 'get'
        ipm_cmd = 'rpc/ip_find_free_address'
-       querystring =  {'subnet_id' : ipm_subnet_id, 'max_find' : '1'} 
+       querystring =  {'subnet_id' : ipm_subnet_id, 'begin_addr' : ipm_begin_addr, 'max_find' : '1'} 
        return self.req(method,ipm_cmd,querystring)
 
     def dns_cname_add(self,ipm_alias_fqdn,ipm_alias_value,ipm_alias_ttl):
@@ -170,6 +170,7 @@ def main():
             ipm_space_id     = dict(required=False),
             ipm_subnet       = dict(required=False),
             ipm_subnet_id    = dict(required=False),
+	    ipm_begin_addr   = dict(required=False),
             ipm_hostname     = dict(required=False),
             ipm_hostaddr     = dict(required=False),
             ipm_macaddr      = dict(required=False),
@@ -196,6 +197,7 @@ def main():
     ipm_space_id    = module.params["ipm_space_id"]
     ipm_subnet      = module.params["ipm_subnet"]
     ipm_subnet_id   = module.params["ipm_subnet_id"]
+    ipm_begin_addr  = module.params["ipm_begin_addr"]
     ipm_hostname    = module.params["ipm_hostname"]
     ipm_hostaddr    = module.params["ipm_hostaddr"]
     ipm_macaddr     = module.params["ipm_macaddr"]   
@@ -256,7 +258,7 @@ def main():
                 raise Exception()
 
         if ipm_action == 'ip_address_find_free':
-            result = eip.ip_address_find_free(ipm_subnet_id)
+            result = eip.ip_address_find_free(ipm_subnet_id, ipm_begin_addr)
             if result[1] == True:
                 req_output = { 'output' : result[0][0]["hostaddr"]}
                 module.exit_json(changed=result[2], result=req_output)
