@@ -16,7 +16,7 @@ This module is still in heavy developpment.
 ### Task listing...
 - ip_space_list
 - ip_subnet_list space [ one_class_parameter | class_name ]  
-- ip_address_find_free subnet_id
+- ip_address_find_free subnet_id, begin_addr
 - ip_address_add hostname, ipv4, space [ mac_addr, class_name, class_parameters ]
 - ip_address_delete ipv4, space
 - dns_cname_add alias_fqdn, hostname, ttl
@@ -52,6 +52,7 @@ This module is still in heavy developpment.
      ipm_password=<your_ipm_admin_password_here>
      ipm_action=ip_address_find_free
      ipm_subnet_id=4
+     ipm_begin_addr=192.168.15.20
     register: eip
 
   - name: add IP on space
