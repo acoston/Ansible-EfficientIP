@@ -108,6 +108,12 @@ class Eip(object):
        ipm_cmd = 'rest/ip_site_list'
        querystring = ''
        return self.req(method,ipm_cmd,querystring)
+   
+    def ip_pool_list(self):
+       method = 'get'
+       ipm_cmd = 'rest/ip_pool_list'
+       querystring = ''
+       return self.req(method,ipm_cmd,querystring)
 
     def ip_subnet_list(self,ipm_space,ipm_classparam,ipm_classname):
        method = 'get'
@@ -133,10 +139,16 @@ class Eip(object):
        querystring = {'site_name': ipm_space,'hostaddr': ipm_hostaddr}
        return self.req(method,ipm_cmd,querystring)
 
-    def ip_address_find_free(self,ipm_subnet_id):
+    def ip_address_find_free(self,ipm_subnet_id, ipm_begin_addr):
        method = 'get'
        ipm_cmd = 'rpc/ip_find_free_address'
-       querystring =  {'subnet_id' : ipm_subnet_id, 'max_find' : '1'} 
+       querystring =  {'subnet_id' : ipm_subnet_id, 'begin_addr' : ipm_begin_addr, 'max_find' : '1'} 
+       return self.req(method,ipm_cmd,querystring)
+
+    def ip_address_find_free_pool_id(self, ipm_pool_id):
+       method = 'get'
+       ipm_cmd = 'rpc/ip_find_free_address'
+       querystring =  {'pool_id' : ipm_pool_id, 'max_find' : '1' } 
        return self.req(method,ipm_cmd,querystring)
 
     def dns_cname_add(self,ipm_alias_fqdn,ipm_alias_value,ipm_alias_ttl):
@@ -165,11 +177,13 @@ def main():
             insecure         = dict(required=False),
             ipm_server       = dict(required=True),
             ipm_username     = dict(required=True),
-            ipm_password     = dict(required=True),
+            ipm_password     = dict(required=True,no_log=True),
             ipm_space        = dict(required=False),
             ipm_space_id     = dict(required=False),
             ipm_subnet       = dict(required=False),
             ipm_subnet_id    = dict(required=False),
+	    ipm_begin_addr   = dict(required=False),
+	    ipm_pool_id      = dict(required=False),
             ipm_hostname     = dict(required=False),
             ipm_hostaddr     = dict(required=False),
             ipm_macaddr      = dict(required=False),
@@ -179,10 +193,12 @@ def main():
             ipm_classparam   = dict(required=False),
             ipm_classname    = dict(required=False),
             ipm_action       = dict(required=True, choices=['ip_space_list',
+							    'ip_pool_list',
                                                             'ip_subnet_list',
                                                             'ip_address_add',
                                                             'ip_address_delete',
                                                             'ip_address_find_free',
+							    'ip_address_find_free_pool_id',
                                                             'dns_cname_delete',
 							    'dns_cname_add'])
         ), supports_check_mode=False
@@ -196,6 +212,8 @@ def main():
     ipm_space_id    = module.params["ipm_space_id"]
     ipm_subnet      = module.params["ipm_subnet"]
     ipm_subnet_id   = module.params["ipm_subnet_id"]
+    ipm_begin_addr  = module.params["ipm_begin_addr"]
+    ipm_pool_id     = module.params["ipm_pool_id"]
     ipm_hostname    = module.params["ipm_hostname"]
     ipm_hostaddr    = module.params["ipm_hostaddr"]
     ipm_macaddr     = module.params["ipm_macaddr"]   
@@ -215,6 +233,17 @@ def main():
                 data = []
                 for rows in result[0]:
                     data.append({ 'ipm_space_id': rows['site_id'], 'ipm_space' :  rows['site_name'] })
+                req_output = { 'output' : data } 
+                module.exit_json(changed=result[2], result=req_output)
+            else:
+                raise Exception()
+		
+	if ipm_action == 'ip_pool_list':
+            result = eip.ip_pool_list()
+            if result[1] == True:
+                data = []
+                for rows in result[0]:
+                    data.append({ 'ipm_space_id': rows['site_id'], 'ipm_pool_name' :  rows['pool_name'], 'ipm_pool_id' : rows['pool_id'], 'ipm_pool_class_name' : rows['pool_class_name'] })
                 req_output = { 'output' : data } 
                 module.exit_json(changed=result[2], result=req_output)
             else:
@@ -256,7 +285,15 @@ def main():
                 raise Exception()
 
         if ipm_action == 'ip_address_find_free':
-            result = eip.ip_address_find_free(ipm_subnet_id)
+            result = eip.ip_address_find_free(ipm_subnet_id, ipm_begin_addr)
+            if result[1] == True:
+                req_output = { 'output' : result[0][0]["hostaddr"]}
+                module.exit_json(changed=result[2], result=req_output)
+            else:
+                raise Exception()
+		
+	if ipm_action == 'ip_address_find_free_pool_id':
+            result = eip.ip_address_find_free_pool_id(ipm_pool_id)
             if result[1] == True:
                 req_output = { 'output' : result[0][0]["hostaddr"]}
                 module.exit_json(changed=result[2], result=req_output)
