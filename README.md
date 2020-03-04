@@ -15,8 +15,10 @@ This module is still in heavy developpment.
 ## Usage
 ### Task listing...
 - ip_space_list
+- ip_pool_list
 - ip_subnet_list space [ one_class_parameter | class_name ]  
 - ip_address_find_free subnet_id, begin_addr
+- ip_address_find_free_pool_id pool_id
 - ip_address_add hostname, ipv4, space [ mac_addr, class_name, class_parameters ]
 - ip_address_delete ipv4, space
 - dns_cname_add alias_fqdn, hostname, ttl
@@ -32,6 +34,13 @@ This module is still in heavy developpment.
      ipm_username=<your_ipm_admin_user_here>
      ipm_password=<your_ipm_admin_password_here>
      ipm_action=ip_space_list
+     
+  - name: list pools and poolid and names
+    eip:
+     ipm_server=<your_ipm_ipaddress_or_hostname_here>
+     ipm_username=<your_ipm_admin_user_here>
+     ipm_password=<your_ipm_admin_password_here>
+     ipm_action=ip_pool_list
 
   - name: list usable subnet from a space
     eip:
