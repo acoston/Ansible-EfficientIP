@@ -121,6 +121,13 @@ class Eip(object):
         querystring = {'WHERE' : 'site_name = \''+ ipm_space +'\' AND is_terminal = \'1\''}
        return self.req(method,ipm_cmd,querystring)
 
+    def ip_address_list(self,ipm_space,ipm_hostname):
+        method = 'get'
+        ipm_cmd= 'rest/ip_address_list'
+        querystring = {'WHERE' : 'site_name = \''+ ipm_space +'\' AND name like \''+ ipm_hostname +'\''}
+        return self.req(method,ipm_cmd,querystring)
+
+
     def ip_address_add(self,ipm_space,ipm_hostname,ipm_hostaddr,ipm_macaddr,ipm_classparam,ipm_classname):
        method = 'post'
        ipm_cmd = 'rest/ip_add'
@@ -180,6 +187,7 @@ def main():
             ipm_classname    = dict(required=False),
             ipm_action       = dict(required=True, choices=['ip_space_list',
                                                             'ip_subnet_list',
+                                                            'ip_address_list',
                                                             'ip_address_add',
                                                             'ip_address_delete',
                                                             'ip_address_find_free',
@@ -216,6 +224,19 @@ def main():
                 for rows in result[0]:
                     data.append({ 'ipm_space_id': rows['site_id'], 'ipm_space' :  rows['site_name'] })
                 req_output = { 'output' : data } 
+                module.exit_json(changed=result[2], result=req_output)
+            else:
+                raise Exception()
+
+        if ipm_action == 'ip_address_list':
+            result = eip.ip_address_list(ipm_space,ipm_hostname)
+            if result[1] == True:
+#                data = []
+#                for rows in result[0]:
+#                    data.append({ rows['hostaddr'] })
+#                    data.append({ 'ipm_space' :  rows['site_name'], 'ipm_hostname' : rows['hostaddr'] })
+#                req_output = { 'output' : data }
+                req_output = { 'output' : result[0][0]["hostaddr"] }
                 module.exit_json(changed=result[2], result=req_output)
             else:
                 raise Exception()
