@@ -30,8 +30,8 @@ class Eip(object):
     def __init__(self,module,ipm_server,ipm_username, ipm_password):
         self.module = module
         self.ipm_auth_hdr = {
-            'X-IPM-Username': base64.b64encode(ipm_username),
-            'X-IPM-Password': base64.b64encode(ipm_password)
+            'X-IPM-Username': base64.b64encode(ipm_username.encode()),
+            'X-IPM-Password': base64.b64encode(ipm_password.encode())
         }
         self.base_url = "https://{host}/".format(host=ipm_server)
 
